@@ -1,17 +1,20 @@
 // Cats as a Service Assignment
 
 const request = require('request');
-const breed = process.argv[2];
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${breed}`, (error, response, body) => {
-  if (error) {
-    console.error('error: ', error);
-  } else if (response.statusCode !== 200) {
-    console.log(`Response Error! Code: ${response.statusCode}`);
-  } else if (body === '[]') {
-    console.log(`Requested breed ${breed} is not found!`);
-  } else {
-    const data = JSON.parse(body);
-    console.log(data[0].description);
-  }
-});
+const fetchBreedDescription = function(breedName, callback) {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+    if (error) {
+      callback(error);
+    } else if (response.statusCode !== 200) {
+      callback(null, `Response Error! Code: ${response.statusCode}`);
+    } else if (body === '[]') {
+      callback(null,`Requested breed ${breedName} is not found!`);
+    } else {
+      const data = JSON.parse(body);
+      callback(null, data[0].description);
+    }
+  });
+};
+
+module.exports = { fetchBreedDescription };
